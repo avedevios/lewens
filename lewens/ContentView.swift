@@ -10,19 +10,25 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         ZStack {
-            // Gradient background
+            // Gradient background - better contrast for MARKISEN
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color.blue,
-                    Color.purple,
-                    Color.pink
+                    Color.teal,
+                    Color.cyan,
+                    Color.mint
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
             
-            // Copyright text
+            // Lewens logo - centered
+            Image("LewensLogo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: 600, maxHeight: 300)
+            
+            // Copyright text - bottom
             VStack {
                 Spacer()
                 Text("© 2025 AVE Software. All rights reserved.")
