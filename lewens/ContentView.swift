@@ -8,41 +8,65 @@
 import SwiftUI
 
 struct ContentView: View {
+    let navigationTypes = [
+        "Stack", "Tabs", "Sheet", "Sidebar", "Split",
+        "Pages", "Grid", "Carousel", "Bottom", "Custom"
+    ]
+    
+    @State private var tappedItem: String? = nil
+    
     var body: some View {
         ZStack {
-            // Фоновое изображение
+            // Background image
             Image("BackgroundGradient")
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black)
                 .ignoresSafeArea()
             
-            // Логотип Lewens
-            VStack(spacing: 8) {
-                HStack(spacing: 0) {
-                    Text("L")
-                        .font(.system(size: 48, weight: .bold, design: .default))
-                        .foregroundColor(.green)
-                    
-                    Text("e")
-                        .font(.system(size: 48, weight: .bold, design: .default))
-                        .foregroundColor(.green)
-                        .overlay(
-                            // Оранжевый полукруг над 'e'
-                            Circle()
-                                .fill(Color.orange)
-                                .frame(width: 20, height: 20)
-                                .offset(y: -15)
-                                .clipped()
-                        )
-                    
-                    Text("wens")
-                        .font(.system(size: 48, weight: .bold, design: .default))
-                        .foregroundColor(.green)
-                }
+            // Content layout
+            VStack(spacing: 0) {
+                // Top half - empty for background
+                Spacer()
                 
-                Text("MARKISEN")
-                    .font(.system(size: 24, weight: .medium, design: .default))
-                    .foregroundColor(.purple.opacity(0.7))
+                // Bottom half - grid
+                VStack {
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible()),
+                        GridItem(.flexible())
+                    ], spacing: 16) {
+                        ForEach(navigationTypes, id: \.self) { navigationType in
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.2))
+                                .frame(height: 80)
+                                .overlay(
+                                    Text(navigationType)
+                                        .foregroundColor(.white)
+                                        .font(.system(size: 16, weight: .medium))
+                                )
+                                .scaleEffect(tappedItem == navigationType ? 0.95 : 1.0)
+                                .animation(.easeInOut(duration: 0.1), value: tappedItem)
+                                .onTapGesture {
+                                    tappedItem = navigationType
+                                    // Haptic feedback
+                                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                                    impactFeedback.impactOccurred()
+                                    
+                                    // Reset after animation
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        tappedItem = nil
+                                    }
+                                }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 40)
+                }
+                .frame(maxHeight: UIScreen.main.bounds.height / 2)
             }
         }
     }
