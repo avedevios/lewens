@@ -27,4 +27,4 @@ Design assets
 - App logo used above: design/lewens_logo_small.png
 
 License
-- TBD
+Proprietary — © Lewens Markisen. All rights reserved.
