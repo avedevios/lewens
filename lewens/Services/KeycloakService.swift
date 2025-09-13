@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+// import AppAuth  // Will be uncommented when we add the dependency
 
 // Keycloak service for authentication
 class KeycloakService: ObservableObject {
@@ -28,7 +29,15 @@ class KeycloakService: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        // TODO: Implement real Keycloak authentication
+        // TODO: Implement real Keycloak authentication using AppAuth
+        // This will involve:
+        // 1. Creating OIDServiceConfiguration from KeycloakConfig
+        // 2. Creating OIDAuthorizationRequest
+        // 3. Presenting authorization flow
+        // 4. Handling the callback with authorization code
+        // 5. Exchanging code for tokens
+        // 6. Fetching user info from Keycloak
+        
         // For now, simulate a successful login
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             if !username.isEmpty && !password.isEmpty {
