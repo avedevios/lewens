@@ -19,7 +19,7 @@ struct KeycloakConfig {
     static let clientId = "lewens-ios"
     
     // Redirect URI for OAuth callback
-    static let redirectURI = "lewens://auth/callback"
+    static let redirectURI = "lewens://auth"
     
     // Scopes to request
     static let scopes = ["openid", "profile", "email"]

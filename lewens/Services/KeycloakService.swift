@@ -105,6 +105,25 @@ class KeycloakService: ObservableObject {
         clearAuthData()
     }
     
+    // Handle OAuth callback from browser
+    func handleOAuthCallback(url: URL) {
+        // Check if we have an active authorization flow
+        guard let currentFlow = currentAuthorizationFlow else {
+            print("No active authorization flow")
+            return
+        }
+        
+        // Resume the authorization flow with the callback URL
+        if currentFlow.resumeExternalUserAgentFlow(with: url) {
+            currentAuthorizationFlow = nil
+            print("OAuth callback handled successfully")
+        } else {
+            print("Failed to handle OAuth callback")
+            errorMessage = "Authentication failed"
+            isLoading = false
+        }
+    }
+    
     // Refresh token (placeholder)
     func refreshToken() {
         // TODO: Implement token refresh

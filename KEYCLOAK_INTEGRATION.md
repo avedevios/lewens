@@ -22,7 +22,8 @@
 - Server URL: `http://localhost:8080`
 - Realm: `lewens`
 - Client ID: `lewens-ios`
-- Redirect URI: `lewens://auth/callback`
+- Redirect URI: `lewens://auth`
+- URL Scheme: `lewens` (configured in Info.plist)
 
 ### Architecture:
 ```
