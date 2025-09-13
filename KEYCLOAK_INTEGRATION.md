@@ -1,20 +1,22 @@
 # Keycloak Integration Progress
 
-## Current Status: Foundation Setup ✅
+## Current Status: OAuth Flow Foundation ✅
 
 ### What's Done:
 1. **Project Structure** - Organized into Views/, ViewModels/, Models/, Services/
 2. **KeycloakConfig** - Configuration model for Keycloak server settings
-3. **KeycloakService** - Service layer for authentication (placeholder)
+3. **KeycloakService** - Service layer for authentication with AppAuth integration
 4. **AuthManager** - Updated to use KeycloakService
 5. **Error Handling** - Added error display in LoginView
+6. **AppAuth-iOS** - Added OAuth 2.0/OpenID Connect library
+7. **OAuth Flow Structure** - Basic OAuth flow implementation (simulated)
 
 ### Next Steps:
-1. **Add AppAuth-iOS dependency** - Real OAuth 2.0/OpenID Connect library
-2. **Implement OAuth flow** - Authorization code flow with Keycloak
-3. **Token management** - Store and refresh access tokens
-4. **User info fetching** - Get real user data from Keycloak
-5. **Logout implementation** - Proper logout with token revocation
+1. **Real OAuth Flow** - Present actual browser-based authentication
+2. **Token management** - Store and refresh access tokens
+3. **User info fetching** - Get real user data from Keycloak
+4. **URL Scheme handling** - Handle OAuth callbacks
+5. **Production configuration** - Real Keycloak server setup
 
 ### Keycloak Configuration:
 - Server URL: `http://localhost:8080`

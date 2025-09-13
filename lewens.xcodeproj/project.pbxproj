@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6D9DF7652E75105B00135081 /* AppAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 6D9DF7642E75105B00135081 /* AppAuth */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		6D79DBEF2E67D4F800F1D1D7 /* lewens.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = lewens.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D9DF7652E75105B00135081 /* AppAuth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +83,7 @@
 			);
 			name = lewens;
 			packageProductDependencies = (
+				6D9DF7642E75105B00135081 /* AppAuth */,
 			);
 			productName = lewens;
 			productReference = 6D79DBEF2E67D4F800F1D1D7 /* lewens.app */;
@@ -107,6 +113,9 @@
 			);
 			mainGroup = 6D79DBE62E67D4F800F1D1D7;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6D9DF7632E75105B00135081 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6D79DBF02E67D4F800F1D1D7 /* Products */;
 			projectDirPath = "";
@@ -341,6 +350,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6D9DF7632E75105B00135081 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/openid/AppAuth-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6D9DF7642E75105B00135081 /* AppAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6D9DF7632E75105B00135081 /* XCRemoteSwiftPackageReference "AppAuth-iOS" */;
+			productName = AppAuth;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6D79DBE72E67D4F800F1D1D7 /* Project object */;
 }
