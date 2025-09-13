@@ -49,6 +49,14 @@ struct LoginView: View {
                     
                     SecureField("Password", text: $password)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    // Error message
+                    if let errorMessage = authManager.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                            .multilineTextAlignment(.center)
+                    }
                 }
                 .padding(.horizontal, 40)
                 

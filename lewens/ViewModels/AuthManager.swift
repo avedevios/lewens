@@ -8,72 +8,41 @@
 import Foundation
 import SwiftUI
 
-// Simple authentication manager
+// Authentication manager that uses KeycloakService
 class AuthManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var isLoading = false
+    @Published var errorMessage: String?
     
     // Singleton for global access
     static let shared = AuthManager()
     
+    // Keycloak service
+    private let keycloakService = KeycloakService.shared
+    
     private init() {
-        // Check for stored user data
-        checkStoredAuth()
-    }
-    
-    // Simple login method (without Keycloak for now)
-    func login(email: String, password: String) {
-        isLoading = true
+        // Subscribe to KeycloakService changes
+        keycloakService.$isAuthenticated
+            .assign(to: &$isAuthenticated)
         
-        // Simulate server request
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            // For now, just check that fields are not empty
-            if !email.isEmpty && !password.isEmpty {
-                // Create test user
-                let user = User(
-                    id: UUID().uuidString,
-                    email: email,
-                    firstName: "Test",
-                    lastName: "User",
-                    username: email.components(separatedBy: "@").first
-                )
-                
-                self.currentUser = user
-                self.isAuthenticated = true
-                self.saveAuthData()
-            }
-            
-            self.isLoading = false
-        }
+        keycloakService.$currentUser
+            .assign(to: &$currentUser)
+        
+        keycloakService.$isLoading
+            .assign(to: &$isLoading)
+        
+        keycloakService.$errorMessage
+            .assign(to: &$errorMessage)
     }
     
-    // Logout from system
+    // Login method that delegates to KeycloakService
+    func login(email: String, password: String) {
+        keycloakService.login(username: email, password: password)
+    }
+    
+    // Logout method that delegates to KeycloakService
     func logout() {
-        currentUser = nil
-        isAuthenticated = false
-        clearAuthData()
-    }
-    
-    // Check stored authentication data
-    private func checkStoredAuth() {
-        if let userData = UserDefaults.standard.data(forKey: "currentUser"),
-           let user = try? JSONDecoder().decode(User.self, from: userData) {
-            currentUser = user
-            isAuthenticated = true
-        }
-    }
-    
-    // Save user data
-    private func saveAuthData() {
-        if let user = currentUser,
-           let userData = try? JSONEncoder().encode(user) {
-            UserDefaults.standard.set(userData, forKey: "currentUser")
-        }
-    }
-    
-    // Clear stored data
-    private func clearAuthData() {
-        UserDefaults.standard.removeObject(forKey: "currentUser")
+        keycloakService.logout()
     }
 }
