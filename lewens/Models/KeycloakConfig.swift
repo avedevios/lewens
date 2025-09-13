@@ -10,10 +10,10 @@ import Foundation
 // Keycloak configuration model
 struct KeycloakConfig {
     // Keycloak server URL (change this to your Keycloak server)
-    static let serverURL = "http://localhost:8080"
+    static let serverURL = "https://salespilotkeycloak.duckdns.org"
     
     // Realm name
-    static let realm = "lewens"
+    static let realm = "salespilot"
     
     // Client ID for iOS app
     static let clientId = "lewens-ios"
