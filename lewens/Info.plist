@@ -17,15 +17,19 @@
 	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>salespilotkeycloak.duckdns.org</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
-				<key>NSExceptionMinimumTLSVersion</key>
-				<string>TLSv1.0</string>
+			<key>NSExceptionMinimumTLSVersion</key>
+			<string>TLSv1.2</string>
 				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSExceptionValidatesCertificateChain</key>
 				<false/>
 			</dict>
 		</dict>

@@ -10,7 +10,7 @@ import Combine
 import AppAuth
 
 // Keycloak service for authentication
-class KeycloakService: ObservableObject {
+class KeycloakService: NSObject, ObservableObject {
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var isLoading = false
@@ -20,10 +20,21 @@ class KeycloakService: ObservableObject {
     private var authState: OIDAuthState?
     private var currentAuthorizationFlow: OIDExternalUserAgentSession?
     
+    // Custom URL session for SSL bypass
+    private lazy var customURLSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        return URLSession(configuration: config, delegate: self, delegateQueue: nil)
+    }()
+    
     // Singleton for global access
     static let shared = KeycloakService()
     
-    private init() {
+    private override init() {
+        super.init()
+        
+        // Setup SSL bypass for development
+        setupSSLBypass()
+        
         // Check for stored authentication data
         checkStoredAuth()
         
@@ -31,14 +42,28 @@ class KeycloakService: ObservableObject {
         refreshToken()
     }
     
+    // Setup SSL bypass for development (NOT for production!)
+    private func setupSSLBypass() {
+        #if DEBUG
+        // Set up global SSL bypass for development
+        // This is a workaround for self-signed certificates
+        // DO NOT use in production!
+        URLProtocol.registerClass(SSLBypassProtocol.self)
+        #endif
+    }
+    
     // Login with OAuth flow (opens browser for authentication)
     func login(username: String, password: String) {
         isLoading = true
         errorMessage = nil
         
+        // Clear any existing state before starting new flow
+        clearStoredData()
+        
         // Start OAuth authorization flow
         startAuthorizationFlow()
     }
+    
     
     // Start OAuth authorization flow
     private func startAuthorizationFlow() {
@@ -68,7 +93,10 @@ class KeycloakService: ObservableObject {
             scopes: KeycloakConfig.scopes,
             redirectURL: redirectURI,
             responseType: OIDResponseTypeCode,
-            additionalParameters: nil
+            additionalParameters: [
+                "prompt": "login",           // Force login screen
+                "max_age": "0"              // Force re-authentication
+            ]
         )
         
         // Present authorization flow
@@ -86,8 +114,15 @@ class KeycloakService: ObservableObject {
             return
         }
         
-        // Present the authorization flow
-        currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, presenting: rootViewController) { [weak self] authState, error in
+        // Create external user agent
+        guard let externalUserAgent = OIDExternalUserAgentIOS(presenting: rootViewController) else {
+            errorMessage = "Unable to create external user agent"
+            isLoading = false
+            return
+        }
+        
+        // Present the authorization flow with external user agent
+        currentAuthorizationFlow = OIDAuthState.authState(byPresenting: request, externalUserAgent: externalUserAgent) { [weak self] authState, error in
             DispatchQueue.main.async {
                 if let authState = authState {
                     // Success - we have the auth state
@@ -124,8 +159,8 @@ class KeycloakService: ObservableObject {
         request.setValue("Bearer \(authState.lastTokenResponse?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
-        // Perform the request
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+        // Perform the request with custom session
+        customURLSession.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = "Failed to fetch user info: \(error.localizedDescription)"
@@ -183,20 +218,46 @@ class KeycloakService: ObservableObject {
         clearAuthData()
     }
     
+    // Clear stored data (for testing)
+    func clearStoredData() {
+        // Clear all UserDefaults data
+        clearAuthData()
+        
+        // Clear ALL cookies (more aggressive)
+        if let cookies = HTTPCookieStorage.shared.cookies {
+            for cookie in cookies {
+                HTTPCookieStorage.shared.deleteCookie(cookie)
+            }
+        }
+        
+        // Clear all UserDefaults (more aggressive)
+        let defaults = UserDefaults.standard
+        let dictionary = defaults.dictionaryRepresentation()
+        for key in dictionary.keys {
+            defaults.removeObject(forKey: key)
+        }
+        
+        // Reset all state immediately
+        self.authState = nil
+        self.currentUser = nil
+        self.isAuthenticated = false
+        self.isLoading = false
+        self.currentAuthorizationFlow = nil
+        
+        print("All stored data cleared aggressively")
+    }
+    
     // Handle OAuth callback from browser
     func handleOAuthCallback(url: URL) {
         // Check if we have an active authorization flow
         guard let currentFlow = currentAuthorizationFlow else {
-            print("No active authorization flow")
             return
         }
         
         // Resume the authorization flow with the callback URL
         if currentFlow.resumeExternalUserAgentFlow(with: url) {
             currentAuthorizationFlow = nil
-            print("OAuth callback handled successfully")
         } else {
-            print("Failed to handle OAuth callback")
             errorMessage = "Authentication failed"
             isLoading = false
         }
@@ -238,16 +299,31 @@ class KeycloakService: ObservableObject {
     
     // Check stored authentication data
     private func checkStoredAuth() {
+        // Try to restore user from UserDefaults
         if let userData = UserDefaults.standard.data(forKey: "keycloak_user"),
            let user = try? JSONDecoder().decode(User.self, from: userData) {
             currentUser = user
-            isAuthenticated = true
         }
         
         // Restore auth state for token management
         if let authStateData = UserDefaults.standard.data(forKey: "keycloak_auth_state"),
            let authState = try? NSKeyedUnarchiver.unarchivedObject(ofClass: OIDAuthState.self, from: authStateData) {
             self.authState = authState
+            
+            // Check if token is still valid
+            if let _ = authState.lastTokenResponse?.accessToken,
+               let expirationDate = authState.lastTokenResponse?.accessTokenExpirationDate,
+               expirationDate > Date() {
+                // Token is still valid
+                isAuthenticated = true
+            } else {
+                // Token expired, clear stored data
+                clearAuthData()
+                isAuthenticated = false
+                currentUser = nil
+            }
+        } else {
+            isAuthenticated = false
         }
     }
     
@@ -271,3 +347,82 @@ class KeycloakService: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "keycloak_auth_state")
     }
 }
+
+// MARK: - URLSessionDelegate for SSL bypass (Development only)
+#if DEBUG
+extension KeycloakService: URLSessionDelegate {
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        // Accept self-signed certificates for development
+        guard let serverTrust = challenge.protectionSpace.serverTrust else {
+            completionHandler(.performDefaultHandling, nil)
+            return
+        }
+        
+        let credential = URLCredential(trust: serverTrust)
+        completionHandler(.useCredential, credential)
+    }
+}
+
+// MARK: - SSL Bypass Protocol for Development
+class SSLBypassProtocol: URLProtocol {
+    override class func canInit(with request: URLRequest) -> Bool {
+        // Only handle HTTPS requests to our Keycloak server
+        guard let url = request.url,
+              url.scheme == "https",
+              url.host?.contains("salespilotkeycloak.duckdns.org") == true else {
+            return false
+        }
+        return true
+    }
+    
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
+        return request
+    }
+    
+    override func startLoading() {
+        // Create a new request with SSL bypass
+        var newRequest = request
+        newRequest.setValue("true", forHTTPHeaderField: "X-SSL-Bypass")
+        
+        // Use a custom session with SSL bypass
+        let config = URLSessionConfiguration.default
+        let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
+        
+        let task = session.dataTask(with: newRequest) { [weak self] data, response, error in
+            if let error = error {
+                self?.client?.urlProtocol(self!, didFailWithError: error)
+                return
+            }
+            
+            if let response = response {
+                self?.client?.urlProtocol(self!, didReceive: response, cacheStoragePolicy: .notAllowed)
+            }
+            
+            if let data = data {
+                self?.client?.urlProtocol(self!, didLoad: data)
+            }
+            
+            self?.client?.urlProtocolDidFinishLoading(self!)
+        }
+        
+        task.resume()
+    }
+    
+    override func stopLoading() {
+        // Nothing to do
+    }
+}
+
+extension SSLBypassProtocol: URLSessionDelegate {
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        // Accept all certificates for development
+        guard let serverTrust = challenge.protectionSpace.serverTrust else {
+            completionHandler(.performDefaultHandling, nil)
+            return
+        }
+        
+        let credential = URLCredential(trust: serverTrust)
+        completionHandler(.useCredential, credential)
+    }
+}
+#endif
