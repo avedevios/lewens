@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct LoginView: View {
-    @State private var email = ""
-    @State private var password = ""
     @ObservedObject private var authManager = AuthManager.shared
     
     var body: some View {
@@ -40,36 +38,32 @@ struct LoginView: View {
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
                 
-                // Input fields
-                VStack(spacing: 20) {
-                    TextField("Email", text: $email)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-                    
-                    SecureField("Password", text: $password)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
-                    // Error message
-                    if let errorMessage = authManager.errorMessage {
-                        Text(errorMessage)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                            .multilineTextAlignment(.center)
-                    }
+                // Description
+                Text("Sign in with your Keycloak account")
+                    .font(.system(size: 16))
+                    .foregroundColor(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                
+                // Error message
+                if let errorMessage = authManager.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
                 }
-                .padding(.horizontal, 40)
                 
                 // Login button
                 Button(action: {
-                    authManager.login(email: email, password: password)
+                    authManager.login(email: "", password: "")
                 }) {
                     HStack {
                         if authManager.isLoading {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         }
-                        Text(authManager.isLoading ? "Signing in..." : "Sign In")
+                        Text(authManager.isLoading ? "Opening browser..." : "Sign In with Keycloak")
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)

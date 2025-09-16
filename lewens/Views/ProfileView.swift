@@ -76,24 +76,6 @@ struct ProfileView: View {
                             )
                     }
                     
-                    // Clear stored data button (for testing)
-                    Button(action: {
-                        KeycloakService.shared.clearStoredData()
-                    }) {
-                        Text("Clear Stored Data")
-                            .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(.orange)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.1))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.orange.opacity(0.5), lineWidth: 1)
-                            )
-                    }
                 }
                 .padding(.horizontal, 40)
                 
