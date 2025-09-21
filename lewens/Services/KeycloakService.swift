@@ -20,36 +20,17 @@ class KeycloakService: NSObject, ObservableObject {
     private var authState: OIDAuthState?
     private var currentAuthorizationFlow: OIDExternalUserAgentSession?
     
-    // Custom URL session for SSL bypass
-    private lazy var customURLSession: URLSession = {
-        let config = URLSessionConfiguration.default
-        return URLSession(configuration: config, delegate: self, delegateQueue: nil)
-    }()
-    
     // Singleton for global access
     static let shared = KeycloakService()
     
     private override init() {
         super.init()
         
-        // Setup SSL bypass for development
-        setupSSLBypass()
-        
         // Check for stored authentication data
         checkStoredAuth()
         
         // Refresh token if needed
         refreshToken()
-    }
-    
-    // Setup SSL bypass for development (NOT for production!)
-    private func setupSSLBypass() {
-        #if DEBUG
-        // Set up global SSL bypass for development
-        // This is a workaround for self-signed certificates
-        // DO NOT use in production!
-        URLProtocol.registerClass(SSLBypassProtocol.self)
-        #endif
     }
     
     // Login with OAuth flow (opens browser for authentication)
@@ -159,8 +140,8 @@ class KeycloakService: NSObject, ObservableObject {
         request.setValue("Bearer \(authState.lastTokenResponse?.accessToken ?? "")", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
-        // Perform the request with custom session
-        customURLSession.dataTask(with: request) { [weak self] data, response, error in
+        // Perform the request
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
                     self?.errorMessage = "Failed to fetch user info: \(error.localizedDescription)"
@@ -347,82 +328,3 @@ class KeycloakService: NSObject, ObservableObject {
         UserDefaults.standard.removeObject(forKey: "keycloak_auth_state")
     }
 }
-
-// MARK: - URLSessionDelegate for SSL bypass (Development only)
-#if DEBUG
-extension KeycloakService: URLSessionDelegate {
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        // Accept self-signed certificates for development
-        guard let serverTrust = challenge.protectionSpace.serverTrust else {
-            completionHandler(.performDefaultHandling, nil)
-            return
-        }
-        
-        let credential = URLCredential(trust: serverTrust)
-        completionHandler(.useCredential, credential)
-    }
-}
-
-// MARK: - SSL Bypass Protocol for Development
-class SSLBypassProtocol: URLProtocol {
-    override class func canInit(with request: URLRequest) -> Bool {
-        // Only handle HTTPS requests to our Keycloak server
-        guard let url = request.url,
-              url.scheme == "https",
-              url.host?.contains("salespilotkeycloak.duckdns.org") == true else {
-            return false
-        }
-        return true
-    }
-    
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        return request
-    }
-    
-    override func startLoading() {
-        // Create a new request with SSL bypass
-        var newRequest = request
-        newRequest.setValue("true", forHTTPHeaderField: "X-SSL-Bypass")
-        
-        // Use a custom session with SSL bypass
-        let config = URLSessionConfiguration.default
-        let session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
-        
-        let task = session.dataTask(with: newRequest) { [weak self] data, response, error in
-            if let error = error {
-                self?.client?.urlProtocol(self!, didFailWithError: error)
-                return
-            }
-            
-            if let response = response {
-                self?.client?.urlProtocol(self!, didReceive: response, cacheStoragePolicy: .notAllowed)
-            }
-            
-            if let data = data {
-                self?.client?.urlProtocol(self!, didLoad: data)
-            }
-            
-            self?.client?.urlProtocolDidFinishLoading(self!)
-        }
-        
-        task.resume()
-    }
-    
-    override func stopLoading() {
-        // Nothing to do
-    }
-}
-
-extension SSLBypassProtocol: URLSessionDelegate {
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        // Accept all certificates for development
-        guard let serverTrust = challenge.protectionSpace.serverTrust else {
-            completionHandler(.performDefaultHandling, nil)
-            return
-        }
-        
-        let credential = URLCredential(trust: serverTrust)
-        completionHandler(.useCredential, credential)
-    }
-}
-#endif
