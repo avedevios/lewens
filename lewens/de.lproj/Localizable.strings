@@ -1,0 +1,25 @@
+/* German (Default) Localization */
+
+/* Login View */
+"authentication" = "Authentifizierung";
+"sign_in_description" = "Melden Sie sich mit Ihrem Keycloak-Konto an";
+"opening_browser" = "Browser wird geöffnet...";
+"sign_in_keycloak" = "Mit Keycloak anmelden";
+"copyright" = "© 2025 AVE Software. Alle Rechte vorbehalten.";
+
+/* Profile View */
+"welcome" = "Willkommen!";
+"sign_out" = "Abmelden";
+"language" = "Sprache";
+
+/* Tab Bar */
+"downloads" = "Downloads";
+"sign_in" = "Anmelden";
+"profile" = "Profil";
+"customers" = "Kunden";
+
+/* Downloads View */
+"downloads_description" = "Ihre Downloads werden hier angezeigt";
+
+/* Customers View */
+"customers_description" = "Die Kundenliste wird hier angezeigt";
