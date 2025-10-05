@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CustomersView: View {
+    @ObservedObject private var localizationManager = LocalizationManager.shared
+    
     var body: some View {
         ZStack {
             // Same gradient background
@@ -34,11 +36,11 @@ struct CustomersView: View {
                 Spacer()
                 
                 // Title
-                Text("Customers")
+                LocalizedText(LocalizationKeys.customers)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
                 
-                Text("Customer list will appear here")
+                LocalizedText(LocalizationKeys.customersDescription)
                     .font(.system(size: 16))
                     .foregroundColor(.white.opacity(0.8))
                     .padding(.top, 10)

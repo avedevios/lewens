@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct DownloadsView: View {
+    @ObservedObject private var localizationManager = LocalizationManager.shared
+    
     var body: some View {
         ZStack {
             // Same gradient background
@@ -34,11 +36,11 @@ struct DownloadsView: View {
                 Spacer()
                 
                 // Title
-                Text("Downloads")
+                LocalizedText(LocalizationKeys.downloads)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
                 
-                Text("Your downloads will appear here")
+                LocalizedText(LocalizationKeys.downloadsDescription)
                     .font(.system(size: 16))
                     .foregroundColor(.white.opacity(0.8))
                     .padding(.top, 10)

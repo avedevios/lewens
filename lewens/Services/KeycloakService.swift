@@ -224,8 +224,6 @@ class KeycloakService: NSObject, ObservableObject {
         self.isAuthenticated = false
         self.isLoading = false
         self.currentAuthorizationFlow = nil
-        
-        print("All stored data cleared aggressively")
     }
     
     // Handle OAuth callback from browser
@@ -247,7 +245,6 @@ class KeycloakService: NSObject, ObservableObject {
     // Refresh token
     func refreshToken() {
         guard let authState = authState else {
-            print("No auth state available for token refresh")
             return
         }
         

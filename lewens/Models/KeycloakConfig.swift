@@ -24,6 +24,9 @@ struct KeycloakConfig {
     // Scopes to request
     static let scopes = ["openid", "profile", "email"]
     
+    // Apple Sign In configuration
+    static let appleClientId = "com.lewens.keycloak.auth"
+    
     // Computed properties for URLs
     static var realmURL: String {
         return "\(serverURL)/realms/\(realm)"

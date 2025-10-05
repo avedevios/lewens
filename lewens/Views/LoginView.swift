@@ -9,6 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     @ObservedObject private var authManager = AuthManager.shared
+    @ObservedObject private var localizationManager = LocalizationManager.shared
     
     var body: some View {
         ZStack {
@@ -34,12 +35,12 @@ struct LoginView: View {
                     .frame(maxWidth: 300, maxHeight: 150)
                 
                 // Title
-                Text("Authentication")
+                LocalizedText(LocalizationKeys.authentication)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
                 
                 // Description
-                Text("Sign in with your Keycloak account")
+                LocalizedText(LocalizationKeys.signInDescription)
                     .font(.system(size: 16))
                     .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
@@ -63,7 +64,7 @@ struct LoginView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         }
-                        Text(authManager.isLoading ? "Opening browser..." : "Sign In with Keycloak")
+                        Text(authManager.isLoading ? localizationManager.localizedString(for: LocalizationKeys.openingBrowser) : localizationManager.localizedString(for: LocalizationKeys.signInKeycloak))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
@@ -77,7 +78,7 @@ struct LoginView: View {
                 Spacer()
                 
                 // Copyright text - bottom
-                Text("© 2025 AVE Software. All rights reserved.")
+                LocalizedText(LocalizationKeys.copyright)
                     .font(.system(size: 12, weight: .regular))
                     .foregroundColor(.white.opacity(0.7))
                     .padding(.bottom, 20)
