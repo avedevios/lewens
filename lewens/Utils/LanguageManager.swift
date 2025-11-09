@@ -14,7 +14,7 @@ class LanguageManager: ObservableObject {
     @Published var currentLanguage: String {
         didSet {
             LocalizationManager.shared.setLanguage(currentLanguage)
-            saveLanguageForCurrentUser()
+            saveLanguage()
         }
     }
     
@@ -24,45 +24,34 @@ class LanguageManager: ObservableObject {
         "pl": "Polski"
     ]
     
-    private var currentUserId: String?
-    
     private init() {
-        // Start with default language
-        self.currentLanguage = Self.getDefaultLanguage()
+        // Load saved language or use default
+        self.currentLanguage = Self.loadSavedLanguage()
         LocalizationManager.shared.setLanguage(currentLanguage)
+    }
+    
+    private static func loadSavedLanguage() -> String {
+        // Check if there's a saved language
+        if let savedLanguage = UserDefaults.standard.string(forKey: "AppLanguage"),
+           ["de", "en", "pl"].contains(savedLanguage) {
+            return savedLanguage
+        }
         
-        // Listen for authentication changes
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(userDidLogin),
-            name: .userDidLogin,
-            object: nil
-        )
-        
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(userDidLogout),
-            name: .userDidLogout,
-            object: nil
-        )
+        // Otherwise use system default
+        return getDefaultLanguage()
     }
     
     private static func getDefaultLanguage() -> String {
-        let supportedLanguages = [
-            "de": "Deutsch",
-            "en": "English", 
-            "pl": "Polski"
-        ]
-        
         // Get system preferred languages
         let preferredLanguages = Locale.preferredLanguages
+        let supportedCodes = ["de", "en", "pl"]
         
         for languageCode in preferredLanguages {
             // Extract language code (e.g., "en-US" -> "en")
             let code = String(languageCode.prefix(2))
             
             // Check if we support this language
-            if supportedLanguages.keys.contains(code) {
+            if supportedCodes.contains(code) {
                 return code
             }
         }
@@ -71,64 +60,12 @@ class LanguageManager: ObservableObject {
         return "de"
     }
     
-    @objc private func userDidLogin(_ notification: Notification) {
-        guard let userInfo = notification.userInfo,
-              let user = userInfo["user"] as? User else { 
-            return 
-        }
-        
-        // Set currentUserId FIRST, before loading language
-        currentUserId = user.id
-        
-        // Now load the language for this user
-        loadLanguageForUser(userId: user.id)
-    }
-    
-    @objc private func userDidLogout(_ notification: Notification) {
-        currentUserId = nil
-        // Reset to default language when user logs out
-        currentLanguage = Self.getDefaultLanguage()
-    }
-    
-    private func loadLanguageForUser(userId: String) {
-        let key = "AppLanguage_\(userId)"
-        let savedValue = UserDefaults.standard.string(forKey: key)
-        
-        // Check if the saved value is a valid language code
-        if let savedLanguage = savedValue, supportedLanguages.keys.contains(savedLanguage) {
-            setLanguageWithoutSaving(savedLanguage)
-        } else {
-            // No saved language or invalid language code - use default
-            let defaultLang = Self.getDefaultLanguage()
-            setLanguageWithoutSaving(defaultLang)
-        }
-    }
-    
-    private func setLanguageWithoutSaving(_ language: String) {
-        // Temporarily disable saving by clearing currentUserId
-        let tempUserId = currentUserId
-        currentUserId = nil
-        
-        // Set the language (this will trigger didSet but won't save because currentUserId is nil)
-        currentLanguage = language
-        LocalizationManager.shared.setLanguage(language)
-        
-        // Restore currentUserId
-        currentUserId = tempUserId
-    }
-    
-    private func saveLanguageForCurrentUser() {
-        guard let userId = currentUserId else { 
-            return 
-        }
-        let key = "AppLanguage_\(userId)"
-        UserDefaults.standard.set(currentLanguage, forKey: key)
+    private func saveLanguage() {
+        UserDefaults.standard.set(currentLanguage, forKey: "AppLanguage")
         UserDefaults.standard.synchronize()
     }
     
     func getLanguageName(for code: String) -> String {
         return supportedLanguages[code] ?? code
     }
-    
-
 }

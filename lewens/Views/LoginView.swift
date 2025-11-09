@@ -10,6 +10,8 @@ import SwiftUI
 struct LoginView: View {
     @ObservedObject private var authManager = AuthManager.shared
     @ObservedObject private var localizationManager = LocalizationManager.shared
+    @ObservedObject private var languageManager = LanguageManager.shared
+    @State private var showLanguagePicker = false
     
     var body: some View {
         ZStack {
@@ -26,6 +28,39 @@ struct LoginView: View {
             .ignoresSafeArea()
             
             VStack(spacing: 40) {
+                // Language button - top right
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showLanguagePicker = true
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "globe")
+                            Text(languageManager.getLanguageName(for: languageManager.currentLanguage))
+                        }
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 20)
+                                .fill(Color.white.opacity(0.2))
+                        )
+                    }
+                    .actionSheet(isPresented: $showLanguagePicker) {
+                        ActionSheet(
+                            title: Text(localizationManager.localizedString(for: LocalizationKeys.language)),
+                            buttons: languageManager.supportedLanguages.map { code, name in
+                                .default(Text(name)) {
+                                    languageManager.currentLanguage = code
+                                }
+                            } + [.cancel()]
+                        )
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                
                 Spacer()
                 
                 // Logo

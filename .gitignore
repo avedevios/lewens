@@ -94,6 +94,10 @@ iOSInjectionProject/
 .AppleDouble
 .LSOverride
 
+# IntelliJ IDEA
+.idea/
+*.iml
+
 # Icon must end with two \r
 Icon
 
