@@ -15,12 +15,11 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            // Same gradient background as ContentView
+            // LSS brand gradient background
             LinearGradient(
                 gradient: Gradient(colors: [
-                    Color.teal,
-                    Color.cyan,
-                    Color.mint
+                    Color.lssAnthrazit,
+                    Color.lssAnthrazit.opacity(0.9)
                 ]),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
@@ -97,14 +96,14 @@ struct LoginView: View {
                     HStack {
                         if authManager.isLoading {
                             ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .progressViewStyle(CircularProgressViewStyle(tint: .lssAnthrazit))
                         }
                         Text(authManager.isLoading ? localizationManager.localizedString(for: LocalizationKeys.openingBrowser) : localizationManager.localizedString(for: LocalizationKeys.signInKeycloak))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color.green)
-                    .foregroundColor(.white)
+                    .background(Color.lssGelb)
+                    .foregroundColor(.lssAnthrazit)
                     .cornerRadius(10)
                 }
                 .padding(.horizontal, 40)

@@ -44,7 +44,7 @@ struct ContentView: View {
                 }
                 .tag(2)
         }
-        .accentColor(.white) // Active tab color
+        .accentColor(.lssGelb) // Active tab color - LSS brand yellow
     }
 }
 

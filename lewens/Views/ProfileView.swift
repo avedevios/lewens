@@ -15,17 +15,9 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
-            // Same gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.teal,
-                    Color.cyan,
-                    Color.mint
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // LSS brand background
+            Color.lssGrau
+                .ignoresSafeArea()
             
             VStack(spacing: 30) {
                 Spacer()
@@ -41,20 +33,20 @@ struct ProfileView: View {
                     VStack(spacing: 15) {
                         LocalizedText(LocalizationKeys.welcome)
                             .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.lssAnthrazit)
                         
                         Text(user.displayName)
                             .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.lssAnthrazit)
                         
                         Text(user.email)
                             .font(.system(size: 16))
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.lssAnthrazit.opacity(0.7))
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.black.opacity(0.3))
+                            .fill(Color.white.opacity(0.5))
                     )
                 }
                 
@@ -68,16 +60,16 @@ struct ProfileView: View {
                             Text(localizationManager.localizedString(for: LocalizationKeys.language))
                             Spacer()
                             Text(languageManager.getLanguageName(for: languageManager.currentLanguage))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.lssAnthrazit.opacity(0.7))
                         }
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.lssAnthrazit)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .padding(.horizontal, 20)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.2))
+                                .fill(Color.white.opacity(0.5))
                         )
                     }
                     .actionSheet(isPresented: $showLanguagePicker) {
@@ -99,16 +91,12 @@ struct ProfileView: View {
                     }) {
                         LocalizedText(LocalizationKeys.signOut)
                             .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.red)
+                            .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(
                                 RoundedRectangle(cornerRadius: 10)
-                                    .fill(Color.white.opacity(0.2))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.red.opacity(0.5), lineWidth: 1)
+                                    .fill(Color.lssAnthrazit)
                             )
                     }
                     
@@ -120,7 +108,7 @@ struct ProfileView: View {
                 // Copyright text - bottom
                 LocalizedText(LocalizationKeys.copyright)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.lssAnthrazit.opacity(0.6))
                     .padding(.bottom, 20)
             }
         }

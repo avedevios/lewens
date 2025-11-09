@@ -12,17 +12,9 @@ struct DownloadsView: View {
     
     var body: some View {
         ZStack {
-            // Same gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.teal,
-                    Color.cyan,
-                    Color.mint
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // LSS brand background
+            Color.lssGrau
+                .ignoresSafeArea()
             
             VStack {
                 Spacer()
@@ -38,11 +30,11 @@ struct DownloadsView: View {
                 // Title
                 LocalizedText(LocalizationKeys.downloads)
                     .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.lssAnthrazit)
                 
                 LocalizedText(LocalizationKeys.downloadsDescription)
                     .font(.system(size: 16))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.lssAnthrazit.opacity(0.7))
                     .padding(.top, 10)
                 
                 Spacer()

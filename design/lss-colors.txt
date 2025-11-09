@@ -1,4 +1,0 @@
- --lss-anthrazit: #2E2D2C;  /*LSS Anthrazit 46/45/44  */
-  --lss-gelb: #FFDE13;  /*LSS Gelb 255/222/19 */
-  --lss-bronze: #D8AF78;  /*LSS Bronze 216/175/123 */
-  --lss-grau: #E4E4D8;  /*LSS Grau 228/228/216 */
