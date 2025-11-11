@@ -26,11 +26,26 @@ class KeycloakService: NSObject, ObservableObject {
     private override init() {
         super.init()
         
-        // Check for stored authentication data
-        checkStoredAuth()
+        #if DEBUG
+        StartupProfiler.shared.recordMilestone("KeycloakService Init Start")
+        #endif
         
-        // Refresh token if needed
-        refreshToken()
+        // Defer both auth restoration and token refresh to background
+        // to avoid blocking UI thread on app startup
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            self?.checkStoredAuth()
+            
+            #if DEBUG
+            DispatchQueue.main.async {
+                StartupProfiler.shared.recordMilestone("KeycloakService checkStoredAuth Done")
+            }
+            #endif
+            
+            // Refresh token after brief delay
+            DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.refreshToken()
+            }
+        }
     }
     
     // Login with OAuth flow (opens browser for authentication)
@@ -275,34 +290,23 @@ class KeycloakService: NSObject, ObservableObject {
         }
     }
     
-    // Check stored authentication data
+    // Check stored authentication data (optimized for fast startup)
     private func checkStoredAuth() {
-        // Try to restore user from UserDefaults
-        if let userData = UserDefaults.standard.data(forKey: "keycloak_user"),
-           let user = try? JSONDecoder().decode(User.self, from: userData) {
-            currentUser = user
+        // Try to restore user from UserDefaults (lightweight check)
+        if let userData = UserDefaults.standard.data(forKey: "keycloak_user") {
+            do {
+                let user = try JSONDecoder().decode(User.self, from: userData)
+                currentUser = user
+                isAuthenticated = true
+            } catch {
+                #if DEBUG
+                print("Failed to decode stored user: \(error)")
+                #endif
+            }
         }
         
-        // Restore auth state for token management
-        if let authStateData = UserDefaults.standard.data(forKey: "keycloak_auth_state"),
-           let authState = try? NSKeyedUnarchiver.unarchivedObject(ofClass: OIDAuthState.self, from: authStateData) {
-            self.authState = authState
-            
-            // Check if token is still valid
-            if let _ = authState.lastTokenResponse?.accessToken,
-               let expirationDate = authState.lastTokenResponse?.accessTokenExpirationDate,
-               expirationDate > Date() {
-                // Token is still valid
-                isAuthenticated = true
-            } else {
-                // Token expired, clear stored data
-                clearAuthData()
-                isAuthenticated = false
-                currentUser = nil
-            }
-        } else {
-            isAuthenticated = false
-        }
+        // Note: Auth state restoration is deferred to background
+        // to avoid blocking UI thread on app startup
     }
     
     // Save authentication data

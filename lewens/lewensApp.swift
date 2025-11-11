@@ -11,9 +11,12 @@ import SwiftUI
 struct lewensApp: App {
     
     init() {
-        // Initialize localization on app start
-        _ = LocalizationManager.shared
-        _ = LanguageManager.shared
+        // Initialize localization lazily to improve startup time
+        // Localization will be initialized when first accessed
+        
+        #if DEBUG
+        StartupProfiler.shared.recordMilestone("App Init Started")
+        #endif
     }
     
         var body: some Scene {

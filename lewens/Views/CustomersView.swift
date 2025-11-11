@@ -9,32 +9,33 @@ import SwiftUI
 
 struct CustomersView: View {
     @ObservedObject private var localizationManager = LocalizationManager.shared
+    @State private var showLanguagePicker = false
+    @ObservedObject private var languageManager = LanguageManager.shared
     
     var body: some View {
         ZStack {
-            // LSS brand background
-            Color.lssGrau
-                .ignoresSafeArea()
+            // Unified app background
+            AppBackground()
             
             VStack {
-                Spacer()
-                
-                // Logo
-                Image("LewensLogo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 300, maxHeight: 150)
+                // Logo header
+                LogoHeader(
+                    showLanguageButton: false,
+                    showLanguagePicker: $showLanguagePicker,
+                    languageManager: languageManager,
+                    localizationManager: localizationManager
+                )
                 
                 Spacer()
                 
                 // Title
                 LocalizedText(LocalizationKeys.customers)
                     .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.lssAnthrazit)
+                    .foregroundColor(.white)
                 
                 LocalizedText(LocalizationKeys.customersDescription)
                     .font(.system(size: 16))
-                    .foregroundColor(.lssAnthrazit.opacity(0.7))
+                    .foregroundColor(.white.opacity(0.8))
                     .padding(.top, 10)
                 
                 Spacer()

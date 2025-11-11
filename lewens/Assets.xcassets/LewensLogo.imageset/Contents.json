@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "Lewens-Welt.png",
+      "filename" : "lewens_logo_small.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Lewens-Welt@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "Lewens-Welt@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

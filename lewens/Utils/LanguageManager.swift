@@ -13,6 +13,7 @@ class LanguageManager: ObservableObject {
     
     @Published var currentLanguage: String {
         didSet {
+            // Sync with LocalizationManager when language changes
             LocalizationManager.shared.setLanguage(currentLanguage)
             saveLanguage()
         }
@@ -25,9 +26,22 @@ class LanguageManager: ObservableObject {
     ]
     
     private init() {
-        // Load saved language or use default
-        self.currentLanguage = Self.loadSavedLanguage()
-        LocalizationManager.shared.setLanguage(currentLanguage)
+        #if DEBUG
+        StartupProfiler.shared.recordMilestone("LanguageManager Init Start")
+        #endif
+        
+    // Load saved language or use default
+    self.currentLanguage = Self.loadSavedLanguage()
+
+    // Property observers (didSet) are NOT called when a property is set during
+    // initialization. That means the LocalizationManager won't be synced here.
+    // Explicitly sync the LocalizationManager so the saved language is applied
+    // on startup.
+    LocalizationManager.shared.setLanguage(self.currentLanguage)
+        
+        #if DEBUG
+        StartupProfiler.shared.recordMilestone("LanguageManager Init Done")
+        #endif
     }
     
     private static func loadSavedLanguage() -> String {
@@ -62,7 +76,6 @@ class LanguageManager: ObservableObject {
     
     private func saveLanguage() {
         UserDefaults.standard.set(currentLanguage, forKey: "AppLanguage")
-        UserDefaults.standard.synchronize()
     }
     
     func getLanguageName(for code: String) -> String {

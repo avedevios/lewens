@@ -15,76 +15,44 @@ struct ProfileView: View {
     
     var body: some View {
         ZStack {
-            // LSS brand background
-            Color.lssGrau
-                .ignoresSafeArea()
+            // Unified app background
+            AppBackground()
             
             VStack(spacing: 30) {
-                Spacer()
+                // Logo header with language button
+                LogoHeader(
+                    showLanguageButton: true,
+                    showLanguagePicker: $showLanguagePicker,
+                    languageManager: languageManager,
+                    localizationManager: localizationManager
+                )
                 
-                // Logo
-                Image("LewensLogo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 200, maxHeight: 100)
+                Spacer()
                 
                 // User information
                 if let user = authManager.currentUser {
                     VStack(spacing: 15) {
                         LocalizedText(LocalizationKeys.welcome)
                             .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.lssAnthrazit)
+                            .foregroundColor(.white)
                         
                         Text(user.displayName)
                             .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(.lssAnthrazit)
+                            .foregroundColor(.white)
                         
                         Text(user.email)
                             .font(.system(size: 16))
-                            .foregroundColor(.lssAnthrazit.opacity(0.7))
+                            .foregroundColor(.white.opacity(0.8))
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.white.opacity(0.5))
+                            .fill(Color.white.opacity(0.1))
                     )
                 }
                 
                 // Buttons
                 VStack(spacing: 15) {
-                    // Language picker button
-                    Button(action: {
-                        showLanguagePicker = true
-                    }) {
-                        HStack {
-                            Text(localizationManager.localizedString(for: LocalizationKeys.language))
-                            Spacer()
-                            Text(languageManager.getLanguageName(for: languageManager.currentLanguage))
-                                .foregroundColor(.lssAnthrazit.opacity(0.7))
-                        }
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.lssAnthrazit)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .padding(.horizontal, 20)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.white.opacity(0.5))
-                        )
-                    }
-                    .actionSheet(isPresented: $showLanguagePicker) {
-                        ActionSheet(
-                            title: Text(localizationManager.localizedString(for: LocalizationKeys.language)),
-                            buttons: languageManager.supportedLanguages.map { code, name in
-                                .default(Text(name)) {
-                                    languageManager.currentLanguage = code
-                                }
-                            } + [.cancel()]
-                        )
-                    }
-                    
-
-                    
                     // Logout button
                     Button(action: {
                         authManager.logout()
@@ -99,7 +67,6 @@ struct ProfileView: View {
                                     .fill(Color.lssAnthrazit)
                             )
                     }
-                    
                 }
                 .padding(.horizontal, 40)
                 
@@ -108,7 +75,7 @@ struct ProfileView: View {
                 // Copyright text - bottom
                 LocalizedText(LocalizationKeys.copyright)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.lssAnthrazit.opacity(0.6))
+                    .foregroundColor(.white.opacity(0.7))
                     .padding(.bottom, 20)
             }
         }

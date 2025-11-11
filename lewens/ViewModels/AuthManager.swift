@@ -23,6 +23,10 @@ class AuthManager: ObservableObject {
     private let keycloakService = KeycloakService.shared
     
     private init() {
+        #if DEBUG
+        StartupProfiler.shared.recordMilestone("AuthManager Init Start")
+        #endif
+        
         // Subscribe to KeycloakService changes
         keycloakService.$isAuthenticated
             .assign(to: &$isAuthenticated)
@@ -46,6 +50,10 @@ class AuthManager: ObservableObject {
         
         keycloakService.$errorMessage
             .assign(to: &$errorMessage)
+        
+        #if DEBUG
+        StartupProfiler.shared.recordMilestone("AuthManager Init Done")
+        #endif
     }
     
     private var cancellables = Set<AnyCancellable>()

@@ -45,6 +45,12 @@ struct ContentView: View {
                 .tag(2)
         }
         .accentColor(.lssGelb) // Active tab color - LSS brand yellow
+        .onAppear {
+            #if DEBUG
+            StartupProfiler.shared.recordMilestone("ContentView Appeared")
+            StartupProfiler.shared.printSummary()
+            #endif
+        }
     }
 }
 

@@ -15,70 +15,24 @@ struct LoginView: View {
     
     var body: some View {
         ZStack {
-            // LSS brand gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.lssAnthrazit,
-                    Color.lssAnthrazit.opacity(0.9)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            // Unified app background
+            AppBackground()
             
             VStack(spacing: 40) {
-                // Language button - top right
-                HStack {
-                    Spacer()
-                    Button(action: {
-                        showLanguagePicker = true
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "globe")
-                            Text(languageManager.getLanguageName(for: languageManager.currentLanguage))
-                        }
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white.opacity(0.2))
-                        )
-                    }
-                    .actionSheet(isPresented: $showLanguagePicker) {
-                        ActionSheet(
-                            title: Text(localizationManager.localizedString(for: LocalizationKeys.language)),
-                            buttons: languageManager.supportedLanguages.map { code, name in
-                                .default(Text(name)) {
-                                    languageManager.currentLanguage = code
-                                }
-                            } + [.cancel()]
-                        )
-                    }
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 20)
+                // Logo header with language button
+                LogoHeader(
+                    showLanguageButton: true,
+                    showLanguagePicker: $showLanguagePicker,
+                    languageManager: languageManager,
+                    localizationManager: localizationManager
+                )
                 
                 Spacer()
-                
-                // Logo
-                Image("LewensLogo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 300, maxHeight: 150)
                 
                 // Title
                 LocalizedText(LocalizationKeys.authentication)
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(.white)
-                
-                // Description
-                LocalizedText(LocalizationKeys.signInDescription)
-                    .font(.system(size: 16))
-                    .foregroundColor(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
                 
                 // Error message
                 if let errorMessage = authManager.errorMessage {
@@ -98,7 +52,7 @@ struct LoginView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .lssAnthrazit))
                         }
-                        Text(authManager.isLoading ? localizationManager.localizedString(for: LocalizationKeys.openingBrowser) : localizationManager.localizedString(for: LocalizationKeys.signInKeycloak))
+                        Text(authManager.isLoading ? localizationManager.localizedString(for: LocalizationKeys.openingBrowser) : localizationManager.localizedString(for: LocalizationKeys.signIn))
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
