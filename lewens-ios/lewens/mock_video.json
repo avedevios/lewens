@@ -1,0 +1,24 @@
+[
+    {
+        "name": "Tutorials",
+        "url": null,
+        "directory": true,
+        "children": [
+            {
+                "name": "Product Intro",
+                "url": "/api/v1/files/intro.mp4",
+                "directory": false
+            },
+            {
+                "name": "Setup Tutorial",
+                "url": "/api/v1/files/setup.mp4",
+                "directory": false
+            }
+        ]
+    },
+    {
+        "name": "Advanced Features",
+        "url": "/api/v1/files/features.mp4",
+        "directory": false
+    }
+]
