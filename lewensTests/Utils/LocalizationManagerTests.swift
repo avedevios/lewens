@@ -8,6 +8,7 @@ import Foundation
 @testable import lewens
 
 @Suite("LocalizationManager", .serialized)
+@MainActor
 struct LocalizationManagerTests {
 
     private var sut: LocalizationManager { .shared }

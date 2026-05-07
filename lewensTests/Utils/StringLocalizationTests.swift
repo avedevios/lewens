@@ -8,6 +8,7 @@ import Foundation
 @testable import lewens
 
 @Suite("String.localized extension", .serialized)
+@MainActor
 struct StringLocalizationTests {
 
     @Test("Known key returns non-empty string")

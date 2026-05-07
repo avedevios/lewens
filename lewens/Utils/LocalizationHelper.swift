@@ -9,18 +9,23 @@ import SwiftUI
 extension String {
     /// Returns localized string for the current key using LocalizationManager
     var localized: String {
-        return LocalizationManager.shared.localizedString(for: self)
+        return MainActor.assumeIsolated {
+            LocalizationManager.shared.localizedString(for: self)
+        }
     }
     
     /// Returns localized string with format arguments
     func localized(with arguments: CVarArg...) -> String {
-        let localizedString = LocalizationManager.shared.localizedString(for: self)
+        let localizedString = MainActor.assumeIsolated {
+            LocalizationManager.shared.localizedString(for: self)
+        }
         return String(format: localizedString, arguments: arguments)
     }
 }
 
 // MARK: - LocalizationManager
 
+@MainActor
 class LocalizationManager: ObservableObject {
     static let shared = LocalizationManager()
 
