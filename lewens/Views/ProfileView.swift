@@ -1,0 +1,79 @@
+//
+//  ProfileView.swift
+//  lewens
+//
+//  Created by Anton Averianov on 2025-09-02.
+//
+
+import SwiftUI
+
+struct ProfileView: View {
+    @EnvironmentObject private var keycloakService: KeycloakService
+    @EnvironmentObject private var localizationManager: LocalizationManager
+
+    @State private var showLanguagePicker = false
+
+    var body: some View {
+        ZStack {
+            AppBackground()
+
+            VStack(spacing: 30) {
+                LogoHeader(
+                    showLanguageButton: true,
+                    showLanguagePicker: $showLanguagePicker
+                )
+
+                Spacer()
+
+                if let user = keycloakService.currentUser {
+                    VStack(spacing: 15) {
+                        LocalizedText(LocalizationKeys.welcome)
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundColor(.white)
+
+                        Text(user.displayName)
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundColor(.white)
+
+                        Text(user.email)
+                            .font(.system(size: 16))
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 15)
+                            .fill(Color.white.opacity(0.1))
+                    )
+                }
+
+                Button(action: {
+                    keycloakService.logout()
+                }) {
+                    LocalizedText(LocalizationKeys.signOut)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.lssAnthrazit)
+                        )
+                }
+                .padding(.horizontal, 40)
+
+                Spacer()
+
+                LocalizedText(LocalizationKeys.copyright)
+                    .font(.system(size: 12, weight: .regular))
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.bottom, 20)
+            }
+        }
+    }
+}
+
+#Preview {
+    ProfileView()
+        .environmentObject(KeycloakService.shared)
+        .environmentObject(LocalizationManager.shared)
+}
