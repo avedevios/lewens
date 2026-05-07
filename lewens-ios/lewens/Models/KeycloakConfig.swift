@@ -7,39 +7,53 @@
 
 import Foundation
 
-// Keycloak configuration model
+// Keycloak configuration — values loaded from Config.plist (not tracked in git)
+// Copy Config.plist.example to Config.plist and fill in your values
 struct KeycloakConfig {
-    // Keycloak server URL (change this to your Keycloak server)
-    static let serverURL = "https://salespilotkeycloak.duckdns.org"
-    
-    // Realm name
-    static let realm = "salespilot"
-    
-    // Client ID for iOS app
-    static let clientId = "lewens-ios"
-    
-    // Redirect URI for OAuth callback
-    static let redirectURI = "lewens://auth"
-    
+    private static let config: [String: Any] = {
+        guard let url = Bundle.main.url(forResource: "Config", withExtension: "plist"),
+              let dict = NSDictionary(contentsOf: url) as? [String: Any] else {
+            fatalError("Config.plist not found. Copy Config.plist.example to Config.plist and fill in your values.")
+        }
+        return dict
+    }()
+
+    static var serverURL: String {
+        config["KeycloakServerURL"] as? String ?? ""
+    }
+
+    static var realm: String {
+        config["KeycloakRealm"] as? String ?? ""
+    }
+
+    static var clientId: String {
+        config["KeycloakClientId"] as? String ?? ""
+    }
+
+    static var redirectURI: String {
+        config["KeycloakRedirectURI"] as? String ?? ""
+    }
+
     // Scopes to request
     static let scopes = ["openid", "profile", "email"]
-    
-    // Apple Sign In configuration
-    static let appleClientId = "com.lewens.keycloak.auth"
-    
+
+    static var appleClientId: String {
+        config["AppleClientId"] as? String ?? ""
+    }
+
     // Computed properties for URLs
     static var realmURL: String {
         return "\(serverURL)/realms/\(realm)"
     }
-    
+
     static var authorizationEndpoint: String {
         return "\(realmURL)/protocol/openid-connect/auth"
     }
-    
+
     static var tokenEndpoint: String {
         return "\(realmURL)/protocol/openid-connect/token"
     }
-    
+
     static var userInfoEndpoint: String {
         return "\(realmURL)/protocol/openid-connect/userinfo"
     }

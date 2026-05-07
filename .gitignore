@@ -96,6 +96,9 @@ config/
 scripts/generate_apple_client_secret.py
 scripts/generate_apple_client_secret.sh
 
+# App configuration with sensitive values
+**/Config.plist
+
 # macOS
 .DS_Store
 .AppleDouble

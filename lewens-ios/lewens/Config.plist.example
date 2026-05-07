@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>KeycloakServerURL</key>
+    <string>https://your-keycloak-server.com</string>
+    <key>KeycloakRealm</key>
+    <string>your-realm</string>
+    <key>KeycloakClientId</key>
+    <string>your-client-id</string>
+    <key>KeycloakRedirectURI</key>
+    <string>lewens://auth</string>
+    <key>AppleClientId</key>
+    <string>com.your.apple.client.id</string>
+</dict>
+</plist>
