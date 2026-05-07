@@ -92,6 +92,10 @@ iOSInjectionProject/
 # Sensitive config (certificates, keys)
 config/
 
+# Secret scripts with credentials
+scripts/generate_apple_client_secret.py
+scripts/generate_apple_client_secret.sh
+
 # macOS
 .DS_Store
 .AppleDouble
