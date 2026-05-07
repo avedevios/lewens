@@ -89,6 +89,9 @@ fastlane/test_output
 
 iOSInjectionProject/
 
+# Sensitive config (certificates, keys)
+config/
+
 # macOS
 .DS_Store
 .AppleDouble
