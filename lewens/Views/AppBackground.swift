@@ -11,8 +11,8 @@ struct AppBackground: View {
     var body: some View {
         LinearGradient(
             gradient: Gradient(colors: [
-                Color.lssAnthrazit,
-                Color.lssAnthrazit.opacity(0.95)
+                Color.lssBackgroundTop,
+                Color.lssBackgroundBottom
             ]),
             startPoint: .topLeading,
             endPoint: .bottomTrailing

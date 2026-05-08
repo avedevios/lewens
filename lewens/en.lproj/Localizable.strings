@@ -11,6 +11,9 @@
 "welcome" = "Welcome!";
 "sign_out" = "Sign Out";
 "language" = "Language";
+"system_theme" = "System theme";
+"day_theme" = "Day theme";
+"night_theme" = "Night theme";
 
 /* Tab Bar */
 "downloads" = "Downloads";

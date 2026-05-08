@@ -27,7 +27,7 @@ struct LoginView: View {
 
                 LocalizedText(LocalizationKeys.authentication)
                     .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.lssPrimaryText)
 
                 if let errorMessage = keycloakService.errorMessage {
                     Text(errorMessage)
@@ -62,7 +62,7 @@ struct LoginView: View {
 
                 LocalizedText(LocalizationKeys.copyright)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.lssMutedText)
                     .padding(.bottom, 20)
             }
         }
@@ -73,4 +73,5 @@ struct LoginView: View {
     LoginView()
         .environmentObject(KeycloakService.shared)
         .environmentObject(LocalizationManager.shared)
+        .environmentObject(ThemeManager.shared)
 }

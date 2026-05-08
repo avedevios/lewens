@@ -29,20 +29,20 @@ struct ProfileView: View {
                     VStack(spacing: 15) {
                         LocalizedText(LocalizationKeys.welcome)
                             .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.lssPrimaryText)
 
                         Text(user.displayName)
                             .font(.system(size: 24, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(.lssPrimaryText)
 
                         Text(user.email)
                             .font(.system(size: 16))
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(.lssSecondaryText)
                     }
                     .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 15)
-                            .fill(Color.white.opacity(0.1))
+                            .fill(Color.lssSurface)
                     )
                 }
 
@@ -51,12 +51,12 @@ struct ProfileView: View {
                 }) {
                     LocalizedText(LocalizationKeys.signOut)
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.lssAnthrazit)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(
                             RoundedRectangle(cornerRadius: 10)
-                                .fill(Color.lssAnthrazit)
+                                .fill(Color.lssGelb)
                         )
                 }
                 .padding(.horizontal, 40)
@@ -65,7 +65,7 @@ struct ProfileView: View {
 
                 LocalizedText(LocalizationKeys.copyright)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.lssMutedText)
                     .padding(.bottom, 20)
             }
         }
@@ -76,4 +76,5 @@ struct ProfileView: View {
     ProfileView()
         .environmentObject(KeycloakService.shared)
         .environmentObject(LocalizationManager.shared)
+        .environmentObject(ThemeManager.shared)
 }

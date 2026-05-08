@@ -12,7 +12,7 @@ struct LogoHeader: View {
     @EnvironmentObject private var localizationManager: LocalizationManager
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
+        HStack(alignment: .center, spacing: 12) {
             Image("LewensLogo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -21,18 +21,20 @@ struct LogoHeader: View {
             Spacer()
 
             if showLanguageButton {
+                ThemeToggleButton()
+
                 Button(action: { showLanguagePicker = true }) {
                     HStack(spacing: 8) {
                         Image(systemName: "globe")
                         Text(localizationManager.getLanguageName(for: localizationManager.currentLanguage))
                     }
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(.lssPrimaryText)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.1))
+                            .fill(Color.lssSurface)
                     )
                 }
                 .confirmationDialog(
@@ -48,13 +50,30 @@ struct LogoHeader: View {
                         }
                     }
                 }
-            } else {
-                Color.clear.frame(width: 100, height: 32)
             }
         }
         .frame(height: 60)
         .padding(.horizontal, 20)
         .padding(.top, 16)
+    }
+}
+
+struct ThemeToggleButton: View {
+    @EnvironmentObject private var localizationManager: LocalizationManager
+    @EnvironmentObject private var themeManager: ThemeManager
+
+    var body: some View {
+        Button(action: { themeManager.toggleTheme() }) {
+            Image(systemName: themeManager.currentTheme.iconName)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.lssPrimaryText)
+                .frame(width: 34, height: 34)
+                .background(
+                    Circle()
+                        .fill(Color.lssSurface)
+                )
+        }
+        .accessibilityLabel(localizationManager.localizedString(for: themeManager.currentTheme.localizationKey))
     }
 }
 
@@ -64,5 +83,6 @@ struct LogoHeader: View {
         showLanguagePicker: .constant(false)
     )
     .environmentObject(LocalizationManager.shared)
-    .background(Color.lssAnthrazit)
+    .environmentObject(ThemeManager.shared)
+    .background(Color.lssBackgroundTop)
 }

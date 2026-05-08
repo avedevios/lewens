@@ -38,10 +38,27 @@ struct LSSColorsTests {
         _ = Color.lssGrau
     }
 
+    @Test("semantic theme colors are accessible")
+    func semanticThemeColorsExist() {
+        _ = Color.lssBackgroundTop
+        _ = Color.lssBackgroundBottom
+        _ = Color.lssPrimaryText
+        _ = Color.lssSecondaryText
+        _ = Color.lssMutedText
+        _ = Color.lssSurface
+        _ = Color.lssElevatedSurface
+        _ = Color.lssOverlay
+        _ = Color.lssCodeBackground
+    }
+
     // MARK: - RGB regression (UIColor bridge)
 
-    private func components(of color: Color) -> (r: Double, g: Double, b: Double, a: Double) {
-        let ui = UIColor(color)
+    private func components(
+        of color: Color,
+        userInterfaceStyle: UIUserInterfaceStyle = .unspecified
+    ) -> (r: Double, g: Double, b: Double, a: Double) {
+        let traits = UITraitCollection(userInterfaceStyle: userInterfaceStyle)
+        let ui = UIColor(color).resolvedColor(with: traits)
         var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         ui.getRed(&r, green: &g, blue: &b, alpha: &a)
         return (Double(r), Double(g), Double(b), Double(a))
@@ -81,6 +98,24 @@ struct LSSColorsTests {
         #expect(abs(c.g - 228.0/255.0) < 0.01)
         #expect(abs(c.b - 216.0/255.0) < 0.01)
         #expect(abs(c.a - 1.0)         < 0.01)
+    }
+
+    @Test("Semantic colors resolve differently for day and night themes")
+    func semanticColorsResolveForThemes() {
+        let dayBackground = components(of: .lssBackgroundTop, userInterfaceStyle: .light)
+        let nightBackground = components(of: .lssBackgroundTop, userInterfaceStyle: .dark)
+        let backgroundDiff = abs(dayBackground.r - nightBackground.r)
+            + abs(dayBackground.g - nightBackground.g)
+            + abs(dayBackground.b - nightBackground.b)
+
+        let dayText = components(of: .lssPrimaryText, userInterfaceStyle: .light)
+        let nightText = components(of: .lssPrimaryText, userInterfaceStyle: .dark)
+        let textDiff = abs(dayText.r - nightText.r)
+            + abs(dayText.g - nightText.g)
+            + abs(dayText.b - nightText.b)
+
+        #expect(backgroundDiff > 0.5)
+        #expect(textDiff > 0.5)
     }
 
     // MARK: - Distinctness

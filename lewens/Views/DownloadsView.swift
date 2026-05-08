@@ -34,11 +34,11 @@ struct DownloadsView: View {
 
                 LocalizedText(LocalizationKeys.downloads)
                     .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.lssPrimaryText)
 
                 LocalizedText(LocalizationKeys.downloadsDescription)
                     .font(.system(size: 16))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.lssSecondaryText)
                     .padding(.top, 10)
 
                 VStack(spacing: 20) {
@@ -47,15 +47,15 @@ struct DownloadsView: View {
                     }) {
                         Text("Fetch Downloads List")
                             .fontWeight(.bold)
-                            .foregroundColor(.black)
+                            .foregroundColor(.lssAnthrazit)
                             .padding()
-                            .background(Color.white)
+                            .background(Color.lssElevatedSurface)
                             .cornerRadius(10)
                     }
 
                     if downloadsService.isLoading {
                         ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .progressViewStyle(CircularProgressViewStyle(tint: .lssPrimaryText))
                     }
 
                     if !downloadsService.pdfDownloads.isEmpty {
@@ -76,7 +76,7 @@ struct DownloadsView: View {
 
                 LocalizedText(LocalizationKeys.copyright)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.lssMutedText)
                     .padding(.bottom, 20)
             }
         }
@@ -90,10 +90,10 @@ struct DownloadsView: View {
         .overlay {
             if isDownloading {
                 ZStack {
-                    Color.black.opacity(0.4).edgesIgnoringSafeArea(.all)
+                    Color.lssOverlay.edgesIgnoringSafeArea(.all)
                     ProgressView("Downloading...")
                         .padding()
-                        .background(Color.white)
+                        .background(Color.lssElevatedSurface)
                         .cornerRadius(10)
                 }
             }
@@ -127,7 +127,7 @@ struct DownloadsView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(.lssPrimaryText)
                 .padding(.horizontal)
 
             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 20) {
@@ -138,16 +138,16 @@ struct DownloadsView: View {
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(height: 40)
-                                .foregroundColor(.white)
+                                .foregroundColor(.lssPrimaryText)
 
                             Text(displayName(for: urlPath))
                                 .font(.caption)
-                                .foregroundColor(.white)
+                                .foregroundColor(.lssPrimaryText)
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
                         }
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.lssSurface)
                         .cornerRadius(10)
                     }
                 }
@@ -160,9 +160,9 @@ struct DownloadsView: View {
         ScrollView {
             Text(downloadsService.rawResponse)
                 .font(.system(size: 10, design: .monospaced))
-                .foregroundColor(.white)
+                .foregroundColor(.lssPrimaryText)
                 .padding()
-                .background(Color.black.opacity(0.5))
+                .background(Color.lssCodeBackground)
                 .cornerRadius(8)
         }
         .frame(maxHeight: 300)
@@ -285,4 +285,5 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         .environmentObject(KeycloakService.shared)
         .environmentObject(DownloadsService.shared)
         .environmentObject(LocalizationManager.shared)
+        .environmentObject(ThemeManager.shared)
 }

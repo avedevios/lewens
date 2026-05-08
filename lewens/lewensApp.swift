@@ -14,6 +14,7 @@ struct lewensApp: App {
     private let keycloakService = KeycloakService.shared
     private let downloadsService = DownloadsService.shared
     private let localizationManager = LocalizationManager.shared
+    private let themeManager = ThemeManager.shared
 
     var body: some Scene {
         WindowGroup {
@@ -21,6 +22,7 @@ struct lewensApp: App {
                 .environmentObject(keycloakService)
                 .environmentObject(downloadsService)
                 .environmentObject(localizationManager)
+                .environmentObject(themeManager)
                 .onOpenURL { url in
                     if url.scheme == "lewens" && url.host == "auth" {
                         keycloakService.handleOAuthCallback(url: url)

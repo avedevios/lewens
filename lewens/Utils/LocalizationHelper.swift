@@ -107,6 +107,9 @@ struct LocalizationKeys {
     static let welcome = "welcome"
     static let signOut = "sign_out"
     static let language = "language"
+    static let systemTheme = "system_theme"
+    static let dayTheme = "day_theme"
+    static let nightTheme = "night_theme"
 
     // Tab Bar
     static let downloads = "downloads"

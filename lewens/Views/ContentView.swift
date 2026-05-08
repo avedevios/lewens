@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject private var keycloakService: KeycloakService
     @EnvironmentObject private var localizationManager: LocalizationManager
+    @EnvironmentObject private var themeManager: ThemeManager
 
     @State private var selectedTab = 1
 
@@ -45,6 +46,7 @@ struct ContentView: View {
                 .tag(2)
         }
         .accentColor(.lssGelb)
+        .preferredColorScheme(themeManager.currentTheme.colorScheme)
     }
 }
 
@@ -53,4 +55,5 @@ struct ContentView: View {
         .environmentObject(KeycloakService.shared)
         .environmentObject(DownloadsService.shared)
         .environmentObject(LocalizationManager.shared)
+        .environmentObject(ThemeManager.shared)
 }

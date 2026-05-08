@@ -11,6 +11,9 @@
 "welcome" = "Witamy!";
 "sign_out" = "Wyloguj się";
 "language" = "Język";
+"system_theme" = "Motyw systemowy";
+"day_theme" = "Motyw dzienny";
+"night_theme" = "Motyw nocny";
 
 /* Tab Bar */
 "downloads" = "Pobrane";
