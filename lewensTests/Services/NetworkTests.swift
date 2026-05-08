@@ -272,6 +272,51 @@ struct NetworkTests {
             #expect(requestCount == 0)
         }
 
+        @Test("isLoading is true during fetch and false after")
+        func isLoadingTogglesCorrectly() async throws {
+            let sut = makeSUT()
+            stubBoth(pdf: "[]", video: "[]")
+
+            // Before fetch
+            #expect(sut.isLoading == false)
+
+            // Start fetch
+            sut.fetchDownloads(accessToken: "token")
+            try? await Task.sleep(nanoseconds: 1_000_000) // 1ms delay
+            #expect(sut.isLoading == true)
+
+            // Wait for completion
+            try await fetch(sut, accessToken: "token")
+            #expect(sut.isLoading == false)
+        }
+
+        @Test("Handles empty arrays from API without error")
+        func handlesEmptyArrays() async throws {
+            let sut = makeSUT()
+            stubBoth(pdf: "[]", video: "[]")
+            try await fetch(sut, accessToken: "token")
+            #expect(sut.pdfDownloads.isEmpty)
+            #expect(sut.videoDownloads.isEmpty)
+            #expect(sut.errorMessage == nil)
+        }
+
+        @Test("Handles partial failure — PDF fails but video succeeds")
+        func handlesPartialFailure() async throws {
+            let sut = makeSUT()
+            MockURLProtocol.requestHandler = { request in
+                let path = request.url?.path ?? ""
+                if path.contains("pdf") {
+                    return (makeResponse(url: request.url!, statusCode: 500), Data())
+                } else {
+                    return (makeResponse(url: request.url!, statusCode: 200), #"[{"url":"/video.mp4"}]"#.data(using: .utf8)!)
+                }
+            }
+            try await fetch(sut, accessToken: "token")
+            #expect(sut.pdfDownloads.isEmpty)
+            #expect(sut.videoDownloads == ["/video.mp4"])
+            #expect(sut.errorMessage?.contains("500") == true)
+        }
+
         private func stubBoth(pdf: String, video: String) {
             MockURLProtocol.requestHandler = { request in
                 let path = request.url?.path ?? ""
