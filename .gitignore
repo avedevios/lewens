@@ -99,6 +99,9 @@ scripts/generate_apple_client_secret.sh
 # App configuration with sensitive values
 **/Config.plist
 
+# Local mock data
+lewens/test_data.json
+
 # macOS
 .DS_Store
 .AppleDouble
