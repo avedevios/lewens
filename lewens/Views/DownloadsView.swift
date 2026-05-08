@@ -9,6 +9,7 @@ import SwiftUI
 import QuickLook
 import AVKit
 import AVFoundation
+import Combine
 
 struct DownloadsView: View {
     @EnvironmentObject private var keycloakService: KeycloakService
@@ -22,45 +23,34 @@ struct DownloadsView: View {
 
     var body: some View {
         AppScreen(showLanguagePicker: $showLanguagePicker) {
-            LocalizedText(LocalizationKeys.downloads)
-                .font(.system(size: 32, weight: .bold))
-                .foregroundColor(.lssPrimaryText)
+            ScrollView {
+                VStack(spacing: 20) {
+                    if downloadsService.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .lssPrimaryText))
+                            .padding(.top, 20)
+                    }
 
-            LocalizedText(LocalizationKeys.downloadsDescription)
-                .font(.system(size: 16))
-                .foregroundColor(.lssSecondaryText)
-                .padding(.top, 10)
+                    if !downloadsService.pdfDownloads.isEmpty || !downloadsService.videoDownloads.isEmpty {
+                        downloadsGrid
+                    } else if !downloadsService.rawResponse.isEmpty {
+                        rawResponseView
+                    }
 
-            VStack(spacing: 20) {
-                Button(action: {
-                    downloadsService.fetchDownloads(accessToken: keycloakService.currentUserToken)
-                }) {
-                    Text("Fetch Downloads List")
-                        .fontWeight(.bold)
-                        .foregroundColor(.lssAnthrazit)
-                        .padding()
-                        .background(Color.lssElevatedSurface)
-                        .cornerRadius(10)
+                    if let error = downloadsService.errorMessage {
+                        Text(error)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                    }
                 }
-
-                if downloadsService.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .lssPrimaryText))
-                }
-
-                if !downloadsService.pdfDownloads.isEmpty {
-                    downloadsGrid
-                } else if !downloadsService.rawResponse.isEmpty {
-                    rawResponseView
-                }
-
-                if let error = downloadsService.errorMessage {
-                    Text(error)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                }
+                .padding(.top, 20)
             }
-            .padding(.top, 30)
+            .refreshable {
+                await refreshDownloads()
+            }
+            .onAppear {
+                downloadsService.fetchDownloads(accessToken: keycloakService.currentUserToken)
+            }
         }
         .sheet(item: $previewURL) { url in
             QuickLookPreview(url: url)
@@ -176,6 +166,21 @@ struct DownloadsView: View {
                 isDownloading = false
                 if let url = localURL { previewURL = url }
             }
+        }
+    }
+
+    private func refreshDownloads() async {
+        await withCheckedContinuation { continuation in
+            var cancellable: AnyCancellable?
+            cancellable = downloadsService.$isLoading
+                .dropFirst()
+                .filter { !$0 }
+                .first()
+                .sink { _ in
+                    cancellable?.cancel()
+                    continuation.resume()
+                }
+            downloadsService.fetchDownloads(accessToken: keycloakService.currentUserToken)
         }
     }
 }

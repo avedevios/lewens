@@ -101,6 +101,8 @@ scripts/generate_apple_client_secret.sh
 
 # Local mock data
 lewens/test_data.json
+lewens/mock_pdf.json
+lewens/mock_video.json
 
 # macOS
 .DS_Store
