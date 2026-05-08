@@ -21,64 +21,46 @@ struct DownloadsView: View {
     @State private var isDownloading = false
 
     var body: some View {
-        ZStack {
-            AppBackground()
+        AppScreen(showLanguagePicker: $showLanguagePicker) {
+            LocalizedText(LocalizationKeys.downloads)
+                .font(.system(size: 32, weight: .bold))
+                .foregroundColor(.lssPrimaryText)
 
-            VStack {
-                LogoHeader(
-                    showLanguageButton: false,
-                    showLanguagePicker: $showLanguagePicker
-                )
+            LocalizedText(LocalizationKeys.downloadsDescription)
+                .font(.system(size: 16))
+                .foregroundColor(.lssSecondaryText)
+                .padding(.top, 10)
 
-                Spacer()
-
-                LocalizedText(LocalizationKeys.downloads)
-                    .font(.system(size: 32, weight: .bold))
-                    .foregroundColor(.lssPrimaryText)
-
-                LocalizedText(LocalizationKeys.downloadsDescription)
-                    .font(.system(size: 16))
-                    .foregroundColor(.lssSecondaryText)
-                    .padding(.top, 10)
-
-                VStack(spacing: 20) {
-                    Button(action: {
-                        downloadsService.fetchDownloads(accessToken: keycloakService.currentUserToken)
-                    }) {
-                        Text("Fetch Downloads List")
-                            .fontWeight(.bold)
-                            .foregroundColor(.lssAnthrazit)
-                            .padding()
-                            .background(Color.lssElevatedSurface)
-                            .cornerRadius(10)
-                    }
-
-                    if downloadsService.isLoading {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle(tint: .lssPrimaryText))
-                    }
-
-                    if !downloadsService.pdfDownloads.isEmpty {
-                        downloadsGrid
-                    } else if !downloadsService.rawResponse.isEmpty {
-                        rawResponseView
-                    }
-
-                    if let error = downloadsService.errorMessage {
-                        Text(error)
-                            .foregroundColor(.red)
-                            .font(.caption)
-                    }
+            VStack(spacing: 20) {
+                Button(action: {
+                    downloadsService.fetchDownloads(accessToken: keycloakService.currentUserToken)
+                }) {
+                    Text("Fetch Downloads List")
+                        .fontWeight(.bold)
+                        .foregroundColor(.lssAnthrazit)
+                        .padding()
+                        .background(Color.lssElevatedSurface)
+                        .cornerRadius(10)
                 }
-                .padding(.top, 30)
 
-                Spacer()
+                if downloadsService.isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .lssPrimaryText))
+                }
 
-                LocalizedText(LocalizationKeys.copyright)
-                    .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(.lssMutedText)
-                    .padding(.bottom, 20)
+                if !downloadsService.pdfDownloads.isEmpty {
+                    downloadsGrid
+                } else if !downloadsService.rawResponse.isEmpty {
+                    rawResponseView
+                }
+
+                if let error = downloadsService.errorMessage {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                }
             }
+            .padding(.top, 30)
         }
         .sheet(item: $previewURL) { url in
             QuickLookPreview(url: url)
@@ -238,14 +220,10 @@ struct VideoPlayerView: UIViewControllerRepresentable {
         let controller = AVPlayerViewController()
         let player: AVPlayer
 
-        if let token,
-           var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-            components.scheme = "lewens-auth"
-            if let customURL = components.url {
-                let asset = AVURLAsset(url: customURL)
-                let delegate = VideoResourceLoaderDelegate(token: token)
-                context.coordinator.loaderDelegate = delegate
-                asset.resourceLoader.setDelegate(delegate, queue: .global(qos: .userInitiated))
+        if let token = token, url.scheme == "http" || url.scheme == "https" {
+            let asset = AVURLAsset(url: url, options: ["AVURLAssetHTTPHeaderFieldsKey": ["Authorization": "Bearer \(token)"]])
+
+            if url.pathExtension.lowercased() == "m3u8" {
                 let item = AVPlayerItem(asset: asset)
                 context.coordinator.observePlayerItem(item)
                 player = AVPlayer(playerItem: item)
