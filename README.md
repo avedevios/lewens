@@ -1,8 +1,6 @@
-<div align="center">
-  <img src="lewens/Assets.xcassets/LewensLogo.imageset/lewens_logo_small.png" alt="Lewens Logo" width="180" />
-  <h1>Lewens iOS</h1>
-  <p>Production-focused SwiftUI app with enterprise Keycloak authentication</p>
-</div>
+ # Lewens iOS
+
+Production-focused SwiftUI app with enterprise Keycloak authentication
 
 ---
 
