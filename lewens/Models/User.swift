@@ -8,7 +8,7 @@
 import Foundation
 
 // Simple user model to start with
-struct User: Codable, Identifiable {
+struct User: Codable, Identifiable, Equatable {
     let id: String
     let email: String
     let firstName: String?

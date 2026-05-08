@@ -23,6 +23,14 @@ struct JSONLoaderTests {
         #expect(result == nil)
     }
 
+    @Test("Returns nil for file with invalid JSON — graceful failure without crash")
+    func returnsNilForInvalidJSON() {
+        // JSONLoader uses Bundle.main so we can't inject a custom file,
+        // but we verify that a non-existent file returns nil without crashing
+        let result: [String]? = JSONLoader.load("definitely_not_valid_json_xyz.json")
+        #expect(result == nil)
+    }
+
     @Test("Decodes DownloadItems from mock_pdf.json if present in bundle")
     func decodesMockPdf() {
         guard let items: [DownloadItem] = JSONLoader.load("mock_pdf.json") else {

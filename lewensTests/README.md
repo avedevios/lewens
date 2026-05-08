@@ -16,37 +16,49 @@ If new files are not picked up automatically:
 ```
 lewensTests/
 ├── Helpers/
-│   ├── MockURLProtocol.swift       — URLSession interceptor for stubbed responses
-│   └── UserFixtures.swift          — test data factories
+│   ├── MockURLProtocol.swift          — URLSession interceptor for stubbed responses
+│   └── UserFixtures.swift             — test data factories
 ├── Models/
-│   ├── UserTests.swift             — fullName (parameterized), displayName, Codable
-│   ├── CustomerTests.swift         — Customer, PageableResponse, available flag
-│   └── DownloadItemTests.swift     — flat/nested/deep, Codable, array decode
+│   ├── UserTests.swift                — fullName, displayName, Equatable, Codable, Unicode
+│   ├── CustomerTests.swift            — Customer, SortInfo, PageableInfo, PageableResponse
+│   ├── DownloadItemTests.swift        — flat/nested/deep, url+children, empty children
+│   └── KeycloakConfigTests.swift      — URL building, scopes, non-empty values
 ├── Services/
-│   ├── TokenStoreTests.swift       — save/load/delete/overwrite User, Keychain no-crash
-│   ├── UserInfoServiceTests.swift  — /userinfo parsing, HTTP errors (parameterized), network
-│   └── DownloadsServiceTests.swift — URL extraction, both categories, auth header, errors
+│   ├── TokenStoreTests.swift          — save/load/delete/overwrite, Unicode, isolation
+│   ├── KeycloakServiceTests.swift     — logout, clearStoredData, handleOAuthCallback, login
+│   ├── NetworkTests.swift             — UserInfoService, DownloadsService, downloadFile
+│   └── NotificationTests.swift        — notification names, logout posts, userInfo
 └── Utils/
-    ├── KeychainHelperTests.swift        — save/read/delete, account and service isolation
-    ├── LocalizationManagerTests.swift   — languages, keys, persistence (parameterized)
-    ├── JSONLoaderTests.swift            — missing file, wrong type
-    └── StringLocalizationTests.swift    — .localized, .localized(with:)
+    ├── KeychainHelperTests.swift       — save/read/delete, isolation
+    ├── LocalizationManagerTests.swift  — languages, keys, persistence
+    ├── JSONLoaderTests.swift           — missing file, wrong type, invalid JSON
+    ├── LSSColorsTests.swift            — RGB regression, distinctness
+    ├── StringLocalizationTests.swift   — .localized, .localized(with:)
+    └── VideoResourceLoaderDelegateTests.swift — URL scheme, Range header, DownloadCategory
 ```
 
 ## Coverage
 
 | Component | Tests | Notes |
 |---|---|---|
-| `User` | 9 | parameterized `fullName` |
-| `Customer` | 5 | parameterized `available` flag |
-| `DownloadItem` | 6 | nesting up to 3 levels |
-| `TokenStore` | 9 | isolated `UserDefaults` |
-| `UserInfoService` | 8 | parameterized HTTP errors (401/403/404/500/503) |
-| `DownloadsService` | 11 | `.serialized` due to `@MainActor` |
-| `KeychainHelper` | 8 | `.serialized`, isolation |
-| `LocalizationManager` | 10 | parameterized languages and names |
-| `JSONLoader` | 4 | graceful skip if file not in bundle |
-| `String.localized` | 5 | format strings |
+| `User` | 13 | Equatable, Unicode, empty username edge case |
+| `Customer` | 8 | SortInfo, PageableInfo, multiple elements |
+| `DownloadItem` | 9 | url+children, empty children array |
+| `KeycloakConfig` | 8 | URL building, scopes, redirectURI scheme |
+| `TokenStore` | 12 | Unicode, legacy key cleanup, instance isolation |
+| `KeycloakService` | 8 | logout, clearStoredData, handleOAuthCallback |
+| `UserInfoService` | 8 | HTTP errors (parameterized), network, headers |
+| `DownloadsService` | 16 | URL extraction, fetch, downloadFile |
+| `NotificationCenter` | 5 | names, logout notification, userInfo |
+| `KeychainHelper` | 8 | save/read/delete, isolation |
+| `LocalizationManager` | 12 | languages, keys, persistence |
+| `JSONLoader` | 5 | missing file, wrong type, invalid JSON |
+| `LSSColors` | 9 | RGB regression, distinctness |
+| `String.localized` | 5 | format strings, language switching |
+| `VideoResourceLoaderDelegate` | 7 | URL scheme, Range header, Content-Range |
+| `DownloadCategory` | 3 | both cases exist, are distinct |
+
+**Total: ~130 tests**
 
 ## Key patterns
 
@@ -66,4 +78,11 @@ MockURLProtocol.requestHandler = { request in
 **`.serialized`** — for tests sharing global state (Keychain, `LocalizationManager.shared`):
 ```swift
 @Suite("KeychainHelper", .serialized)
+```
+
+**`@MainActor`** — for tests touching `@Published` properties or `LocalizationManager`:
+```swift
+@Suite("LocalizationManager", .serialized)
+@MainActor
+struct LocalizationManagerTests { ... }
 ```

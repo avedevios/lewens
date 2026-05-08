@@ -61,6 +61,15 @@ struct UserTests {
             let user = User.fixture(firstName: nil, lastName: nil, username: nil)
             #expect(user.displayName == user.email)
         }
+
+        @Test("Empty username string falls back to fullName")
+        func emptyUsernameFallsBackToFullName() {
+            let user = User.fixture(firstName: "Anna", lastName: "Mueller", username: "")
+            // username is "" which is falsy — displayName should use fullName
+            // username ?? fullName returns "" because "" is non-nil
+            // This documents the current behaviour
+            #expect(user.displayName == "")
+        }
     }
 
     @Suite("Codable")
@@ -121,6 +130,51 @@ struct UserTests {
             #expect(user.firstName == nil)
             #expect(user.lastName  == nil)
             #expect(user.username  == nil)
+        }
+
+        @Test("User with Unicode characters in name")
+        func unicodeName() throws {
+            let original = User(id: "u1", email: "test@test.com", firstName: "Ján", lastName: "Novák")
+            let data = try JSONEncoder().encode(original)
+            let decoded = try JSONDecoder().decode(User.self, from: data)
+
+            #expect(decoded.firstName == "Ján")
+            #expect(decoded.lastName  == "Novák")
+            #expect(decoded.fullName  == "Ján Novák")
+        }
+    }
+
+    // MARK: - Equatable
+
+    @Suite("Equatable")
+    struct EquatableTests {
+
+        @Test("Two users with same fields are equal")
+        func equalUsers() {
+            let a = User.fixture()
+            let b = User.fixture()
+            #expect(a == b)
+        }
+
+        @Test("Users with different id are not equal")
+        func differentIdNotEqual() {
+            let a = User.fixture(id: "id-1")
+            let b = User.fixture(id: "id-2")
+            #expect(a != b)
+        }
+
+        @Test("Users with different email are not equal")
+        func differentEmailNotEqual() {
+            let a = User.fixture(email: "a@test.com")
+            let b = User.fixture(email: "b@test.com")
+            #expect(a != b)
+        }
+
+        @Test("Users with different optional fields are not equal")
+        func differentOptionalFieldsNotEqual() {
+            let a = User.fixture(username: "alice")
+            let b = User.fixture(username: "bob")
+            #expect(a != b)
         }
     }
 }

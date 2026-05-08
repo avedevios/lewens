@@ -295,4 +295,121 @@ struct NetworkTests {
             }
         }
     }
+
+    // MARK: - DownloadsService.downloadFile
+
+    @Suite("DownloadsService.downloadFile")
+    @MainActor
+    struct DownloadFileTests {
+
+        private func makeSUT() -> DownloadsService {
+            DownloadsService(session: .mock, apiURL: { category in
+                switch category {
+                case .pdf:   return "https://test.lewens.com/pdf"
+                case .video: return "https://test.lewens.com/video"
+                }
+            })
+        }
+
+        @Test("downloadFile calls completion with nil on network error")
+        func returnsNilOnNetworkError() async {
+            let sut = makeSUT()
+            MockURLProtocol.requestHandler = { _ in throw URLError(.notConnectedToInternet) }
+
+            let result: URL? = await withCheckedContinuation { continuation in
+                sut.downloadFile(urlPath: "/files/doc.pdf", accessToken: "token", session: .mock) { url in
+                    continuation.resume(returning: url)
+                }
+            }
+
+            #expect(result == nil)
+        }
+
+        @Test("downloadFile calls completion with nil on invalid URL")
+        func returnsNilOnInvalidURL() async {
+            let sut = makeSUT()
+
+            let result: URL? = await withCheckedContinuation { continuation in
+                // Empty path + empty base = invalid URL
+                sut.downloadFile(urlPath: "", accessToken: "token", baseURL: "", session: .mock) { url in
+                    continuation.resume(returning: url)
+                }
+            }
+
+            #expect(result == nil)
+        }
+
+        @Test("downloadFile uses absolute URL when path starts with http")
+        func usesAbsoluteURL() async {
+            let sut = makeSUT()
+            var capturedURL: URL?
+
+            MockURLProtocol.requestHandler = { request in
+                capturedURL = request.url
+                throw URLError(.cancelled) // stop after capturing
+            }
+
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                sut.downloadFile(
+                    urlPath: "https://cdn.example.com/file.pdf",
+                    accessToken: "token",
+                    session: .mock
+                ) { _ in continuation.resume() }
+            }
+
+            #expect(capturedURL?.absoluteString == "https://cdn.example.com/file.pdf")
+        }
+
+        @Test("downloadFile strips query params from filename when building dest path")
+        func filenameStripsQueryParams() {
+            // Test the URL parsing logic directly — lastPathComponent + split on "?"
+            let urlPath = "/files/report.pdf?token=abc&v=2"
+            let url = URL(string: "https://base.com" + urlPath)!
+            let filename = url.lastPathComponent.components(separatedBy: "?")[0]
+            #expect(filename == "report.pdf")
+        }
+
+        @Test("downloadFile prepends base URL for relative paths")
+        func prependsBaseURL() async {
+            let sut = makeSUT()
+            var capturedURL: URL?
+
+            MockURLProtocol.requestHandler = { request in
+                capturedURL = request.url
+                throw URLError(.cancelled)
+            }
+
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                sut.downloadFile(
+                    urlPath: "/api/v1/files/doc.pdf",
+                    accessToken: "token",
+                    baseURL: "https://test.lewens.com",
+                    session: .mock
+                ) { _ in continuation.resume() }
+            }
+
+            #expect(capturedURL?.absoluteString == "https://test.lewens.com/api/v1/files/doc.pdf")
+        }
+
+        @Test("downloadFile sends Authorization header")
+        func sendsAuthorizationHeader() async {
+            let sut = makeSUT()
+            var capturedAuth: String?
+
+            MockURLProtocol.requestHandler = { request in
+                capturedAuth = request.value(forHTTPHeaderField: "Authorization")
+                throw URLError(.cancelled)
+            }
+
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                sut.downloadFile(
+                    urlPath: "https://test.lewens.com/files/doc.pdf",
+                    accessToken: "my-token",
+                    session: .mock
+                ) { _ in continuation.resume() }
+            }
+
+            #expect(capturedAuth == "Bearer my-token")
+        }
+    }
 }

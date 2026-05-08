@@ -105,4 +105,36 @@ struct DownloadItemTests {
         #expect(items[0].url == "/a.pdf")
         #expect(items[1].url == "/b.pdf")
     }
+
+    @Test("Item with both url and children — url is included plus all children")
+    func itemWithUrlAndChildren() throws {
+        let json = """
+        {
+            "name": "parent",
+            "url": "/parent.pdf",
+            "directory": false,
+            "children": [
+                { "name": "child.pdf", "url": "/child.pdf" }
+            ]
+        }
+        """.data(using: .utf8)!
+
+        let item = try JSONDecoder().decode(DownloadItem.self, from: json)
+
+        #expect(item.url == "/parent.pdf")
+        #expect(item.children?.count == 1)
+        #expect(item.children?.first?.url == "/child.pdf")
+    }
+
+    @Test("Empty children array produces no URLs")
+    func emptyChildrenArray() throws {
+        let json = """
+        { "name": "empty", "directory": true, "children": [] }
+        """.data(using: .utf8)!
+
+        let item = try JSONDecoder().decode(DownloadItem.self, from: json)
+
+        #expect(item.children?.isEmpty == true)
+        #expect(item.url == nil)
+    }
 }

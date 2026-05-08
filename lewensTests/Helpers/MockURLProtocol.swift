@@ -2,7 +2,7 @@
 //  MockURLProtocol.swift
 //  lewensTests
 //
-//  Intercepts URLSession requests and returns stubbed responses.
+//  Intercepts URLSession requests (both dataTask and downloadTask) and returns stubbed responses.
 //  IMPORTANT: requestHandler is a global static — all tests using it
 //  must run serially to avoid race conditions.
 //
@@ -35,12 +35,15 @@ final class MockURLProtocol: URLProtocol {
 }
 
 extension URLSession {
+    /// Creates a URLSession that routes all requests through MockURLProtocol.
     static var mock: URLSession {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [MockURLProtocol.self]
         return URLSession(configuration: config)
     }
 }
+
+// MARK: - Helpers
 
 func makeResponse(url: URL, statusCode: Int) -> HTTPURLResponse {
     HTTPURLResponse(url: url, statusCode: statusCode, httpVersion: nil, headerFields: nil)!

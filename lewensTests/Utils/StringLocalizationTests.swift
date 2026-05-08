@@ -26,6 +26,7 @@ struct StringLocalizationTests {
     }
 
     @Test("localized changes with language", arguments: ["de", "en", "pl"])
+    @MainActor
     func localizedChangesWithLanguage(language: String) {
         let original = LocalizationManager.shared.currentLanguage
         defer { LocalizationManager.shared.currentLanguage = original }

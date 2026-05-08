@@ -102,4 +102,43 @@ struct TokenStoreTests {
         #expect(sut.loadUser() == nil)
         #expect(sut.loadAuthState() == nil)
     }
+
+    @Test("User with Unicode characters round-trips correctly")
+    func unicodeUserRoundTrip() {
+        let (sut, _) = makeSUT()
+        let user = User(id: "u1", email: "jan@test.com", firstName: "Ján", lastName: "Novák")
+        sut.saveUser(user)
+
+        let loaded = sut.loadUser()
+        #expect(loaded?.firstName == "Ján")
+        #expect(loaded?.lastName  == "Novák")
+    }
+
+    @Test("deleteUser also removes legacy keycloak_auth_state key")
+    func deleteUserRemovesLegacyKey() {
+        let (sut, defaults) = makeSUT()
+        defaults.set("legacy_value", forKey: "keycloak_auth_state")
+        sut.deleteUser()
+        #expect(defaults.string(forKey: "keycloak_auth_state") == nil)
+    }
+
+    @Test("Two separate TokenStore instances with different UserDefaults are isolated")
+    func separateInstancesAreIsolated() {
+        let defaults1 = UserDefaults(suiteName: "lewensTests.TokenStore.A")!
+        let defaults2 = UserDefaults(suiteName: "lewensTests.TokenStore.B")!
+        defaults1.removePersistentDomain(forName: "lewensTests.TokenStore.A")
+        defaults2.removePersistentDomain(forName: "lewensTests.TokenStore.B")
+
+        let store1 = TokenStore(defaults: defaults1)
+        let store2 = TokenStore(defaults: defaults2)
+
+        store1.saveUser(.fixture(email: "store1@test.com"))
+        store2.saveUser(.fixture(email: "store2@test.com"))
+
+        #expect(store1.loadUser()?.email == "store1@test.com")
+        #expect(store2.loadUser()?.email == "store2@test.com")
+
+        defaults1.removePersistentDomain(forName: "lewensTests.TokenStore.A")
+        defaults2.removePersistentDomain(forName: "lewensTests.TokenStore.B")
+    }
 }

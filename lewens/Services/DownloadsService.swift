@@ -50,7 +50,7 @@ class DownloadsService: ObservableObject {
         }
     }
 
-    func downloadFile(urlPath: String, accessToken: String, baseURL: String? = nil, completion: @escaping (URL?) -> Void) {
+    func downloadFile(urlPath: String, accessToken: String, baseURL: String? = nil, session: URLSession? = nil, completion: @escaping (URL?) -> Void) {
         let base = baseURL ?? KeycloakConfig.apiBaseURL
         let fullString = urlPath.hasPrefix("http") ? urlPath : base + urlPath
 
@@ -70,7 +70,8 @@ class DownloadsService: ObservableObject {
         print("⬇️ Downloading: \(url.absoluteString)")
         #endif
 
-        URLSession.shared.downloadTask(with: request) { tempURL, _, error in
+        let activeSession = session ?? self.session
+        activeSession.downloadTask(with: request) { tempURL, _, error in
             guard let tempURL, error == nil else {
                 #if DEBUG
                 print("❌ Download failed: \(error?.localizedDescription ?? "Unknown")")

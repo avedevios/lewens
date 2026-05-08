@@ -27,6 +27,7 @@ struct LocalizationManagerTests {
         ("en", "English"),
         ("pl", "Polski"),
     ])
+    @MainActor
     func languageNames(code: String, expectedName: String) {
         #expect(sut.supportedLanguages[code] == expectedName)
     }
@@ -38,11 +39,13 @@ struct LocalizationManagerTests {
         ("en", "English"),
         ("pl", "Polski"),
     ])
+    @MainActor
     func getLanguageName(code: String, expected: String) {
         #expect(sut.getLanguageName(for: code) == expected)
     }
 
     @Test("getLanguageName returns code for unknown language", arguments: ["fr", "xx", "zh"])
+    @MainActor
     func getLanguageName_unknown(code: String) {
         #expect(sut.getLanguageName(for: code) == code)
     }
@@ -87,6 +90,7 @@ struct LocalizationManagerTests {
     }
 
     @Test("Known keys return non-empty strings in all languages", arguments: ["de", "en", "pl"])
+    @MainActor
     func knownKeysNonEmpty(language: String) {
         let original = sut.currentLanguage
         defer { sut.currentLanguage = original }
